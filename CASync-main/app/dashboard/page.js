@@ -70,7 +70,7 @@ export default function DashboardPage() {
                 <h2>
                   Welcome, <span id="userName">{userName}</span>!
                 </h2>
-                <p>Access all your tax and business services from one place</p>
+                <p>Access all your  tax and business services from one place</p>
               </div>
               <button onClick={handleLogout} className="logout-btn">
                 <i className="fas fa-sign-out-alt" /> Logout
