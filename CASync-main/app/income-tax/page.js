@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
 
@@ -13,7 +12,7 @@ export default function IncomeTaxPage() {
     try {
       const response = await fetch("/api/auth/verify", {
         method: "GET",
-        credentials: "include"
+        credentials: "include",
       });
       return response.ok;
     } catch (error) {
@@ -36,9 +35,7 @@ export default function IncomeTaxPage() {
 
   useEffect(() => {
     checkLoginStatus().then((isLoggedIn) => {
-      if (!isLoggedIn) {
-        setShowLoginRequired(true);
-      }
+      if (!isLoggedIn) setShowLoginRequired(true);
     });
   }, []);
 
@@ -47,9 +44,10 @@ export default function IncomeTaxPage() {
       <SiteHeader />
       <main className="main-content">
         <div className="container">
-          <Link href="/" className="back-button">
-            <i className="fas fa-arrow-left" /> Back to Home
-          </Link>
+
+          <button className="back-button" onClick={() => router.back()}>
+            <i className="fas fa-arrow-left" /> Back
+          </button>
 
           <section className="service-content">
             <h2>Income Tax Return Services</h2>
@@ -57,40 +55,24 @@ export default function IncomeTaxPage() {
 
             <div className="service-features">
               <div className="feature-card" onClick={() => handleFeatureClick("filereturn")}>
-                <h3>
-                  <i className="fas fa-file-invoice" /> File Return
-                </h3>
+                <h3><i className="fas fa-file-invoice" /> File Return</h3>
                 <p>Easily file your income tax return with our streamlined process. Search your PAN and auto-fill details.</p>
-                <p className="login-required" style={{ display: showLoginRequired ? "block" : "none" }}>
-                  Please login to access this feature
-                </p>
+                {showLoginRequired && <p className="login-required">Please login to access this feature</p>}
               </div>
-
               <div className="feature-card">
-                <h3>
-                  <i className="fas fa-user" /> Individual Tax Returns
-                </h3>
+                <h3><i className="fas fa-user" /> Individual Tax Returns</h3>
                 <p>Professional assistance in filing individual income tax returns with maximum benefits and deductions.</p>
               </div>
-
               <div className="feature-card">
-                <h3>
-                  <i className="fas fa-building" /> Business Tax Returns
-                </h3>
+                <h3><i className="fas fa-building" /> Business Tax Returns</h3>
                 <p>Complete business tax return services including profit &amp; loss statements and balance sheets.</p>
               </div>
-
               <div className="feature-card">
-                <h3>
-                  <i className="fas fa-calculator" /> Tax Planning
-                </h3>
+                <h3><i className="fas fa-calculator" /> Tax Planning</h3>
                 <p>Strategic tax planning to help you minimize your tax liability legally.</p>
               </div>
-
               <div className="feature-card">
-                <h3>
-                  <i className="fas fa-file-alt" /> Tax Consultation
-                </h3>
+                <h3><i className="fas fa-file-alt" /> Tax Consultation</h3>
                 <p>Expert consultation on tax-related matters and compliance requirements.</p>
               </div>
             </div>
@@ -102,11 +84,11 @@ export default function IncomeTaxPage() {
       <style jsx>{`
         .service-content { padding: 40px 0; }
         .service-features { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 30px; }
-        .feature-card { background: var(--white); padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); cursor: pointer; transition: transform 0.3s ease; }
+        .feature-card { background: var(--white); padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.3s ease; }
         .feature-card:hover { transform: translateY(-5px); }
-        .back-button { display: inline-block; padding: 10px 20px; background-color: var(--secondary-color); color: var(--white); text-decoration: none; border-radius: 4px; margin-bottom: 20px; }
+        .back-button { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background-color: var(--secondary-color); color: var(--white); border: none; border-radius: 4px; margin-bottom: 20px; cursor: pointer; font-size: 14px; font-weight: 500; transition: background-color 0.2s; }
         .back-button:hover { background-color: #2980b9; }
-        .login-required { display: none; color: red; margin-top: 10px; font-size: 14px; }
+        .login-required { color: red; margin-top: 10px; font-size: 14px; }
       `}</style>
     </>
   );

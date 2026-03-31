@@ -44,6 +44,7 @@ export default function DashboardPage() {
   const [userEmail, setUserEmail]       = useState("");
   const [activePage, setActivePage]     = useState("dashboard");
   const [sidebarOpen, setSidebarOpen]   = useState(false);
+  const [collapsed, setCollapsed]       = useState(false);
   const [darkMode, setDarkMode]         = useState(false);
   const [svcDropdown, setSvcDropdown]   = useState("");
   const [reqSearch, setReqSearch]       = useState("");
@@ -448,40 +449,45 @@ export default function DashboardPage() {
       {sidebarOpen && <div className="overlay" onClick={()=>setSidebarOpen(false)}/>}
       <div className="layout">
         {/* SIDEBAR */}
-        <aside className={`sidebar${sidebarOpen?" open":""}`}>
+        <aside className={`sidebar${sidebarOpen?" open":""}${collapsed?" collapsed":""}`}>
           <div className="sb-brand">
             <div className="brand-logo">CA</div>
-            <span className="brand-name">CASync</span>
+            {!collapsed && <span className="brand-name">CASync</span>}
+            <button className="collapse-btn" onClick={()=>setCollapsed(!collapsed)} title={collapsed?"Expand sidebar":"Collapse sidebar"}>
+              <i className={`fas fa-${collapsed?"chevron-right":"chevron-left"}`}/>
+            </button>
             <button className="sb-close" onClick={()=>setSidebarOpen(false)}><i className="fas fa-times"/></button>
           </div>
           <nav className="sb-nav">
             {navItems.map(item=>(
-              <button key={item.id} className={`nav-item${activePage===item.id?" active":""}`} onClick={()=>navigate(item.id)}>
-                <i className={item.icon}/><span>{item.label}</span>
-                {item.badge>0 && <span className="nav-badge">{item.badge}</span>}
+              <button key={item.id} className={`nav-item${activePage===item.id?" active":""}`} onClick={()=>navigate(item.id)} title={item.label}>
+                <i className={item.icon}/>
+                {!collapsed && <span>{item.label}</span>}
+                {!collapsed && item.badge>0 && <span className="nav-badge">{item.badge}</span>}
+                {collapsed && item.badge>0 && <span className="nav-badge-dot"/>}
               </button>
             ))}
-            <div className="nav-divider">Services</div>
+            {!collapsed && <div className="nav-divider">Services</div>}
+            {collapsed && <div className="nav-divider-dot"/>}
             {serviceItems.map(svc=>(
               <div key={svc.id}>
-                <button className={`nav-item${svcDropdown===svc.id+"_sb"?" active":""}`} onClick={()=>setSvcDropdown(svcDropdown===svc.id+"_sb"?"":svc.id+"_sb")}>
-                  <i className={svc.icon}/><span>{svc.label}</span>
-                  <i className={`fas fa-chevron-${svcDropdown===svc.id+"_sb"?"up":"down"} nav-chevron`}/>
+                <button className={`nav-item${svcDropdown===svc.id+"_sb"?" active":""}`} onClick={()=>!collapsed&&setSvcDropdown(svcDropdown===svc.id+"_sb"?"":svc.id+"_sb")} title={svc.label}>
+                  <i className={svc.icon}/>
+                  {!collapsed && <><span>{svc.label}</span><i className={`fas fa-chevron-${svcDropdown===svc.id+"_sb"?"up":"down"} nav-chevron`}/></>}
                 </button>
-                {svcDropdown===svc.id+"_sb" && (
+                {!collapsed && svcDropdown===svc.id+"_sb" && (
                   <div className="nav-sub">
                     {svc.links.map(l=><Link key={l.href} href={l.href} className="nav-sub-item" onClick={()=>setSidebarOpen(false)}><i className="fas fa-angle-right"/>{l.label}</Link>)}
                   </div>
                 )}
               </div>
             ))}
-            <Link href="/company" className="nav-item" onClick={()=>setSidebarOpen(false)}><i className="fas fa-building"/><span>Company</span></Link>
+            <Link href="/company" className="nav-item" onClick={()=>setSidebarOpen(false)} title="Company"><i className="fas fa-building"/>{!collapsed && <span>Company</span>}</Link>
             <div>
-              <button className={`nav-item${svcDropdown==="other_sb"?" active":""}`} onClick={()=>setSvcDropdown(svcDropdown==="other_sb"?"":"other_sb")}>
-                <i className="fas fa-ellipsis-h"/><span>Other Services</span>
-                <i className={`fas fa-chevron-${svcDropdown==="other_sb"?"up":"down"} nav-chevron`}/>
+              <button className={`nav-item${svcDropdown==="other_sb"?" active":""}`} onClick={()=>!collapsed&&setSvcDropdown(svcDropdown==="other_sb"?"":"other_sb")} title="Other Services">
+                <i className="fas fa-ellipsis-h"/>{!collapsed && <><span>Other Services</span><i className={`fas fa-chevron-${svcDropdown==="other_sb"?"up":"down"} nav-chevron`}/></>}
               </button>
-              {svcDropdown==="other_sb" && (
+              {!collapsed && svcDropdown==="other_sb" && (
                 <div className="nav-sub">
                   <Link href="/firm" className="nav-sub-item" onClick={()=>setSidebarOpen(false)}><i className="fas fa-angle-right"/>Firm Registration</Link>
                   <Link href="/udhyam" className="nav-sub-item" onClick={()=>setSidebarOpen(false)}><i className="fas fa-angle-right"/>Udhyam Registration</Link>
@@ -490,16 +496,25 @@ export default function DashboardPage() {
             </div>
           </nav>
           <div className="sb-bottom">
-            <div className="user-pill">
-              <div className="user-avatar">{userInitials}</div>
-              <div className="user-meta">
-                <span className="user-name-sm">{userName}</span>
-                <span className="user-email-sm">{userEmail}</span>
-                <span className="user-role">Client</span>
+            {!collapsed && (
+              <div className="user-pill">
+                <div className="user-avatar">{userInitials}</div>
+                <div className="user-meta">
+                  <span className="user-name-sm">{userName}</span>
+                  <span className="user-email-sm">{userEmail}</span>
+                  <span className="user-role">Client</span>
+                </div>
               </div>
-            </div>
-            <button className="bottom-btn" onClick={toggleDark}><i className={`fas fa-${darkMode?"sun":"moon"}`}/><span>{darkMode?"Light":"Dark"}</span></button>
-            <button className="bottom-btn logout" onClick={handleLogout}><i className="fas fa-sign-out-alt"/><span>Logout</span></button>
+            )}
+            {collapsed && <div className="user-avatar" style={{margin:"8px auto"}}>{userInitials}</div>}
+            <button className="bottom-btn" onClick={toggleDark} title={darkMode?"Light mode":"Dark mode"}>
+              <i className={`fas fa-${darkMode?"sun":"moon"}`}/>
+              {!collapsed && <span>{darkMode?"Light":"Dark"}</span>}
+            </button>
+            <button className="bottom-btn logout" onClick={handleLogout} title="Logout">
+              <i className="fas fa-sign-out-alt"/>
+              {!collapsed && <span>Logout</span>}
+            </button>
           </div>
         </aside>
 
@@ -515,14 +530,24 @@ export default function DashboardPage() {
       </div>
 
       <style jsx global>{`
-        :root{--sb-bg:#0f172a;--sb-hover:#1e293b;--sb-active:#2563eb;--sb-text:#94a3b8;--sb-text-on:#f1f5f9;--sb-border:#1e293b;--sb-width:252px;--top-bg:#fff;--top-border:#e2e8f0;--top-text:#0f172a;--content-bg:#f1f5f9;--card-bg:#fff;--card-border:#e2e8f0;--text-main:#0f172a;--text-muted:#64748b;--accent:#2563eb;--notif-unread:#eff6ff;}
+        :root{--sb-bg:#0f172a;--sb-hover:#1e293b;--sb-active:#2563eb;--sb-text:#94a3b8;--sb-text-on:#f1f5f9;--sb-border:#1e293b;--sb-width:252px;--sb-collapsed-width:64px;--top-bg:#fff;--top-border:#e2e8f0;--top-text:#0f172a;--content-bg:#f1f5f9;--card-bg:#fff;--card-border:#e2e8f0;--text-main:#0f172a;--text-muted:#64748b;--accent:#2563eb;--notif-unread:#eff6ff;}
         [data-theme="dark"]{--top-bg:#1e293b;--top-border:#334155;--top-text:#f1f5f9;--content-bg:#0f172a;--card-bg:#1e293b;--card-border:#334155;--text-main:#f1f5f9;--text-muted:#94a3b8;--notif-unread:#1e3a5f;}
         *{box-sizing:border-box;margin:0;padding:0;}
         body{font-family:'Segoe UI',system-ui,sans-serif;}
         a{text-decoration:none;color:inherit;}
         .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40;}
         .layout{display:flex;min-height:100vh;background:var(--content-bg);}
-        .sidebar{width:var(--sb-width);background:var(--sb-bg);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:50;transition:transform .28s cubic-bezier(.4,0,.2,1);}
+        .sidebar{width:var(--sb-width);background:var(--sb-bg);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:50;transition:transform .28s cubic-bezier(.4,0,.2,1),width .25s ease;}
+        .sidebar.collapsed{width:var(--sb-collapsed-width);}
+        .sidebar.collapsed .nav-item{justify-content:center;padding:10px 0;}
+        .sidebar.collapsed .nav-item i{width:auto;font-size:16px;}
+        .sidebar.collapsed .bottom-btn{justify-content:center;padding:9px 0;}
+        .sidebar.collapsed .bottom-btn i{width:auto;}
+        .collapse-btn{background:none;border:none;color:var(--sb-text);cursor:pointer;font-size:12px;padding:4px 6px;border-radius:6px;margin-left:auto;transition:background .15s,color .15s;flex-shrink:0;}
+        .collapse-btn:hover{background:var(--sb-hover);color:var(--sb-text-on);}
+        .nav-badge-dot{width:8px;height:8px;background:#ef4444;border-radius:50%;position:absolute;top:6px;right:6px;}
+        .nav-item{position:relative;}
+        .nav-divider-dot{height:1px;background:var(--sb-border);margin:8px 12px;}
         .sb-brand{display:flex;align-items:center;gap:10px;padding:18px 16px;border-bottom:1px solid var(--sb-border);flex-shrink:0;}
         .brand-logo{width:32px;height:32px;background:var(--sb-active);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;}
         .brand-name{font-size:16px;font-weight:700;color:var(--sb-text-on);flex:1;}
@@ -550,7 +575,8 @@ export default function DashboardPage() {
         .bottom-btn i{width:18px;text-align:center;}
         .bottom-btn:hover{background:var(--sb-hover);color:var(--sb-text-on);}
         .bottom-btn.logout:hover{background:#7f1d1d;color:#fca5a5;}
-        .main-wrap{flex:1;margin-left:var(--sb-width);display:flex;flex-direction:column;min-height:100vh;}
+        .main-wrap{flex:1;margin-left:var(--sb-width);display:flex;flex-direction:column;min-height:100vh;transition:margin-left .28s;}
+        .sidebar.collapsed ~ .main-wrap, .layout:has(.sidebar.collapsed) .main-wrap{margin-left:var(--sb-collapsed-width)!important;}
         .topbar{background:var(--top-bg);border-bottom:1px solid var(--top-border);height:58px;display:flex;align-items:center;padding:0 24px;gap:16px;position:sticky;top:0;z-index:30;}
         .hamburger{background:none;border:none;font-size:18px;color:var(--top-text);cursor:pointer;display:none;padding:6px;}
         .topbar-title{font-size:17px;font-weight:600;color:var(--top-text);flex:1;}
@@ -641,7 +667,7 @@ export default function DashboardPage() {
         .toggle-thumb{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s;display:block;}
         .toggle-btn.on .toggle-thumb{transform:translateX(20px);}
         @media(max-width:1024px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
-        @media(max-width:768px){.sidebar{transform:translateX(-100%);}.sidebar.open{transform:translateX(0);}.sb-close{display:block;}.hamburger{display:block;}.main-wrap{margin-left:0;}.content{padding:16px;}.stats-grid{grid-template-columns:repeat(2,1fr);}.filter-row{grid-template-columns:1fr;}.page-title{font-size:22px;}}
+        @media(max-width:768px){.sidebar{transform:translateX(-100%);}.sidebar.open{transform:translateX(0);}.sidebar.collapsed{width:var(--sb-width);}.sb-close{display:block;}.hamburger{display:block;}.main-wrap{margin-left:0!important;}.content{padding:16px;}.stats-grid{grid-template-columns:repeat(2,1fr);}.filter-row{grid-template-columns:1fr;}.page-title{font-size:22px;}.collapse-btn{display:none;}}
       `}</style>
     </>
   );
